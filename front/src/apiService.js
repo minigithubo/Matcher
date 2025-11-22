@@ -73,7 +73,7 @@ class APIService {
     
     return response;
   }
-
+  
   async getProfile() {
     return await this.request('/auth/profile');
   }

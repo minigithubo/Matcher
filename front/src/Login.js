@@ -67,18 +67,14 @@ const Login = ({ onSwitchToSignUp }) => {
         
       } catch (error) {
         if (error instanceof APIError) {
-          // Handle API validation errors
-          if (error.errors) {
-            setErrors(error.errors);
-          } else {
-            alert(error.message);
-          }
+          // 로그인 실패(401) 처리
+          setErrors({ password: error.message });
         } else {
           // Handle network errors
           console.error('Login error:', error);
           alert('Network error. Please check your connection and try again.');
         }
-      } finally {
+      }finally {
         setIsLoading(false);
       }
     } else {
