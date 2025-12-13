@@ -222,3 +222,40 @@
     padding: 14px;
   }
 }
+/* Alert Box (Login Error) */
+.alert {
+  padding: 15px 20px;
+  background-color: #f44336; /* 빨간색 */
+  color: white;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  position: relative;
+  font-size: 14px;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.closebtn {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 20px;
+}
+
+.closebtn:hover {
+  color: #000;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

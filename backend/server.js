@@ -119,7 +119,7 @@ app.post('/api/auth/login', async (req, res) => {
     // Check password
     const isValidPassword = await bcryptjs.compare(password, user.password);
     if (!isValidPassword) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid Password. Please try again.' });
     }
 
     // Generate JWT token
