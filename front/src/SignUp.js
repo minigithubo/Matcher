@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import apiService, { APIError } from './apiService';
 import './SignUp.css';
 
-const SignUp = ({ onSwitchToLogin }) => {
+const SignUp = ({ onSwitchToLogin, onSignupSuccess }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -79,12 +79,9 @@ const SignUp = ({ onSwitchToLogin }) => {
           confirmPassword: formData.confirmPassword
         });
 
-        // Success! Show message and redirect
-        alert(`Welcome ${response.user.firstName}! Account created successfully!`);
+        // Success! Redirect to main page
         console.log('Signup successful:', response);
-        
-        // Redirect to login or dashboard
-        onSwitchToLogin();
+        onSignupSuccess(response.user);
         
       } catch (error) {
         if (error instanceof APIError) {

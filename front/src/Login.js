@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import apiService, { APIError } from './apiService';
 import './Login.css';
 
-const Login = ({ onSwitchToSignUp }) => {
+const Login = ({ onSwitchToSignUp, onLoginSuccess }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -57,13 +57,9 @@ const Login = ({ onSwitchToSignUp }) => {
           password: formData.password
         });
 
-        // Success! Show message
-        alert(`Welcome back, ${response.user.firstName}! Login successful!`);
+        // Success! Redirect to main page
         console.log('Login successful:', response);
-        
-        // Here you would typically redirect to dashboard
-        // For now, just clear the form
-        setFormData({ email: '', password: '' });
+        onLoginSuccess(response.user);
         
       } catch (error) {
         if (error instanceof APIError) {
