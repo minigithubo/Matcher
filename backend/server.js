@@ -2,11 +2,21 @@ const express = require('express');
 const cors = require('cors');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+const User = require('./models/User');
+
+
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
+
 
 // Simple CORS setup
 app.use(cors({
@@ -16,27 +26,6 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
-// Simple in-memory user storage (replace with database in production)
-let users = [];
-
-// Helper function to find user by email
-const findUserByEmail = (email) => {
-  return users.find(user => user.email.toLowerCase() === email.toLowerCase());
-};
-
-// Helper function to validate email format
-const isValidEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
-
-// Helper function to validate password strength
-const isValidPassword = (password) => {
-  // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-  return passwordRegex.test(password);
-};
 
 // User signup
 app.post('/api/auth/signup', async (req, res) => {
@@ -57,7 +46,7 @@ app.post('/api/auth/signup', async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = findUserByEmail(email);
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ 
         message: 'User already exists'
@@ -68,16 +57,12 @@ app.post('/api/auth/signup', async (req, res) => {
     const hashedPassword = await bcryptjs.hash(password, 10);
 
     // Create new user
-    const newUser = {
-      id: users.length + 1,
+    const newUser = await User.create({
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       email: email.toLowerCase().trim(),
-      password: hashedPassword,
-      createdAt: new Date().toISOString()
-    };
-
-    users.push(newUser);
+      password: hashedPassword
+    });
 
     // Generate JWT token
     const token = jwt.sign(
@@ -111,7 +96,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     // Find user
-    const user = findUserByEmail(email);
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -119,12 +104,12 @@ app.post('/api/auth/login', async (req, res) => {
     // Check password
     const isValidPassword = await bcryptjs.compare(password, user.password);
     if (!isValidPassword) {
-      return res.status(401).json({ message: 'Invalid Password. Please try again.' });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     // Generate JWT token
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user._id, email: user.email },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
